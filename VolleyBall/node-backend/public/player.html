@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Volleyball Spielerdaten</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:nth-child(even) {background-color: #f9f9f9;}
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Willkommen zu den Volleyball Spielerdaten</h1>
+        <!-- Weitere Header-Elemente hier -->
+        <div id="tableSwitcher">
+            <a href="player.html"><button> Spieler anzeigen</button></a>
+            <a href="teams.html"><button> Teams anzeigen</button></a>
+            <a href="tournaments.html"><button> Turnire anzeigen</button></a>
+            <a href="matches.html"><button> Matches anzeigen</button></a>
+            <a href="roundes.html"><button> Runden anzeigen</button></a>
+
+        </div>
+    
+    </header>
+    <h1>Volleyball Spielerdaten</h1>
+    <div id="filters">
+        <input type="text" id="filterNo" placeholder="No">
+        <input type="text" id="filterFederationCode" placeholder="FederationCode">
+        <input type="text" id="filterFirstName" placeholder="FirstName">
+        <input type="text" id="filterLastName" placeholder="LastName">
+        <input type="text" id="filterGender" placeholder="Gender">
+        <input type="text" id="filterPlaysBeach" placeholder="PlaysBeach">
+        <input type="text" id="filterPlaysVolley" placeholder="PlaysVolley">
+        <input type="text" id="filterTeamName" placeholder="TeamName">
+
+    </div>
+    <button onclick="loadData(1)">Filtern</button>
+    <button id="prevPage">Zurück</button>
+    <button id="nextPage">Vor</button>
+    <div id="dataContainer"></div>
+
+    <script>
+        let currentPage = 1;
+
+        function getQueryString() {
+            const filters = {
+                No: document.getElementById('filterNo').value,
+                FederationCode: document.getElementById('filterFederationCode').value,
+                Name : document.getElementById('filterFirstName').value,
+
+                LastName: document.getElementById('filterLastName').value,
+                Gender: document.getElementById('filterGender').value,
+                PlaysBeach : document.getElementById('filterPlaysBeach').value,
+
+                PlaysVolley: document.getElementById('filterPlaysVolley').value,
+                TeamName: document.getElementById('filterTeamName').value,
+
+            };
+            return new URLSearchParams(filters).toString();
+        }
+
+        function loadData(page) {
+            const queryString = getQueryString();
+            fetch(`/api/players?page=${page}&${queryString}`)
+                .then(response => response.json())
+                .then(data => {
+                    const container = document.getElementById('dataContainer');
+                    let html = '<table><tr><th>No</th><th>FederationCode</th><th>FirstName</th><th>LastName</th><th>Gender</th><th>PlaysBeach</th><th>PlaysVolley</th><th>TeamName</th></tr>';
+                    data.data.forEach(player => {
+                        html += `<tr><td>${player.No}</td><td>${player.FederationCode}</td><td>${player.FirstName}</td><td>${player.LastName}</td><td>${player.Gender}</td><td>${player.PlaysBeach}</td><td>${player.PlaysVolley}</td><td>${player.TeamName}</td></tr>`;
+                    });
+                    html += '</table>';
+                    container.innerHTML = html;
+                    currentPage = data.currentPage;
+
+                    console.log(data.message);
+                })
+                .catch(error => console.error('Fehler:', error));
+        }
+
+        document.getElementById('prevPage').addEventListener('click', () => {
+            if (currentPage > 1) {
+                loadData(currentPage - 1);
+            }
+        });
+
+        document.getElementById('nextPage').addEventListener('click', () => {
+            loadData(currentPage + 1);
+        });
+
+        loadData(currentPage);
+
+        document.getElementById('filterButton').addEventListener('click', () => {
+        loadData(1);
+        });
+
+    </script>
+</body>
+</html>
+
+
+

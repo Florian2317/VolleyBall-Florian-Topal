@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Volleyball Spielerdaten</title>
+    <style>
+        /* Fügen Sie hier Ihren CSS-Code ein */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:nth-child(even) {background-color: #f9f9f9;}
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Willkommen zu den Volleyball Spielerdaten</h1>
+        <!-- Weitere Header-Elemente hier -->
+        <div id="tableSwitcher">
+            <a href="player.html"><button> Spieler anzeigen</button></a>
+            <a href="teams.html"><button> Teams anzeigen</button></a>
+            <a href="tournaments.html"><button> Turnire anzeigen</button></a>
+            <a href="matches.html"><button> Matches anzeigen</button></a>
+            <a href="roundes.html"><button> Runden anzeigen</button></a>
+
+        </div>
+    
+    </header>
+
+    <h1>Volleyball Spielerdaten</h1>
+    <div id="filters">
+        <input type="text" id="filterNo" placeholder="No">
+        <input type="text" id="filterNoInTournament" placeholder="NoInTournament">
+        <input type="text" id="filterLocalDate" placeholder="LocalDate">
+        <input type="text" id="filterLocalTime" placeholder="LocalTime">
+        <input type="text" id="filterTeamAName" placeholder="TeamAName">
+        <input type="text" id="filterTeamBName" placeholder="TeamBName">
+        <input type="text" id="filterCourt" placeholder="Court">
+        <input type="text" id="filterMatchPointsA" placeholder="MatchPointsA">
+
+        <input type="text" id="filterMatchPointsB" placeholder="MatchPointsB">
+        <input type="text" id="filterPointsTeamASet1" placeholder="PointsTeamASet1">
+        <input type="text" id="filterPointsTeamBSet1" placeholder="PointsTeamBSet1">
+        <input type="text" id="filterPointsTeamASet2" placeholder="PointsTeamASet2">
+        <input type="text" id="filterPointsTeamBSet2" placeholder="PointsTeamBSet2">
+        <input type="text" id="filterPointsTeamASet3" placeholder="PointsTeamASet3">
+        <input type="text" id="filterPointsTeamBSet3" placeholder="PointsTeamBSet3">
+        <input type="text" id="filterDurationSet1" placeholder="DurationSet1">
+
+        <input type="text" id="filterDurationSet2" placeholder="DurationSet2">
+        <input type="text" id="filterDurationSet3" placeholder="DurationSet3">
+
+
+
+    </div>
+    <button onclick="loadMatchData(1)">Filtern</button>
+    <button id="prevPage">Zurück</button>
+    <button id="nextPage">Vor</button>
+    <div id="dataContainer"></div>
+
+    <script>
+        let currentPage = 1;
+
+        function getMatchQueryString() {
+            const filters = {
+                No:            document.getElementById('filterNo').value,
+                NoInTournament:     document.getElementById('filterNoInTournament').value,
+                LocalDate :         document.getElementById('filterLocalDate').value,
+                LocalTime:          document.getElementById('filterLocalTime').value,
+                TeamAName:          document.getElementById('filterTeamAName').value,
+                TeamBName :         document.getElementById('filterTeamBName').value,
+                Court:              document.getElementById('filterCourt').value,
+                MatchPointsA:       document.getElementById('filterMatchPointsA').value,
+                MatchPointsB:       document.getElementById('filterMatchPointsB').value,
+                PointsTeamASet1:    document.getElementById('filterPointsTeamASet1').value,
+                PointsTeamBSet1 :   document.getElementById('filterPointsTeamBSet1').value,
+                PointsTeamASet2:    document.getElementById('filterPointsTeamASet2').value,
+                PointsTeamBSet2:    document.getElementById('filterPointsTeamBSet2').value,
+                PointsTeamASet3 :   document.getElementById('filterPointsTeamASet3').value,
+                PointsTeamBSet3:    document.getElementById('filterPointsTeamBSet3').value,
+                DurationSet1:       document.getElementById('filterDurationSet1').value,
+                DurationSet2 :      document.getElementById('filterDurationSet2').value,
+                DurationSet3:       document.getElementById('filterDurationSet3').value,
+               
+            };
+            return new URLSearchParams(filters).toString();
+        }
+
+        function loadMatchData(page) {
+            const queryString = getMatchQueryString();
+            fetch(`/api/BeachMatches?page=${page}&${queryString}`)
+                .then(response => response.json())
+                .then(data => {
+                    const container = document.getElementById('dataContainer');
+                    let html = '<table><tr><th>No</th><th>NoInTournament</th><th>LocalDate</th><th>LocalTime</th><th>TeamAName</th><th>TeamBName</th><th>Court</th><th>MatchPointsA</th><th>MatchPointsB</th><th>PointsTeamASet1</th><th>PointsTeamBSet1</th><th>PointsTeamASet2</th><th>PointsTeamBSet2</th><th>PointsTeamASet3</th><th>PointsTeamBSet3</th><th>DurationSet1</th><th>DurationSet2</th><th>DurationSet3</th></tr>';
+                    data.data.forEach(match => {
+                        html += `<tr>
+                            <td>${match.No        }</td>
+                            <td>${match.NoInTournament }</td>
+                            <td>${match.LocalDate      }</td>
+                            <td>${match.LocalTime      }</td>
+                            <td>${match.TeamAName      }</td>
+                            <td>${match.TeamBName      }</td>
+                            <td>${match.Court          }</td>
+                            <td>${match.MatchPointsA   }</td>
+                            <td>${match.MatchPointsB   }</td>
+                            <td>${match.PointsTeamASet1}</td>
+                            <td>${match.PointsTeamBSet1}</td>
+                            <td>${match.PointsTeamASet2}</td>
+                            <td>${match.PointsTeamBSet2}</td>
+                            <td>${match.PointsTeamASet3}</td>
+                            <td>${match.PointsTeamBSet3}</td>
+                            <td>${match.DurationSet1   }</td>                            
+                            <td>${match.DurationSet2   }</td>
+                            <td>${match.DurationSet3   }</td>
+                            </tr>`;
+                    });
+                    html += '</table>';
+                    container.innerHTML = html;
+                    currentPage = data.currentPage;
+
+                    console.log(data.message);
+                })
+                .catch(error => console.error('Fehler:', error));
+        }
+
+        document.getElementById('prevPage').addEventListener('click', () => {
+            if (currentPage > 1) {
+                loadMatchData(currentPage - 1);
+            }
+        });
+
+        document.getElementById('nextPage').addEventListener('click', () => {
+            loadMatchData(currentPage + 1);
+        });
+
+        loadMatchData(currentPage);
+
+        document.getElementById('filterButton').addEventListener('click', () => {
+        loadMatchData(1); // Lädt die erste Seite mit den aktuellen Filtern
+        });
+
+    </script>
+</body>
+</html>
+
+
+

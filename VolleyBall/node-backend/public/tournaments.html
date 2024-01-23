@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Volleyball Spielerdaten</title>
+    <style>
+        /* Fügen Sie hier Ihren CSS-Code ein */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:nth-child(even) {background-color: #f9f9f9;}
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Willkommen zu den Volleyball Spielerdaten</h1>
+        <!-- Weitere Header-Elemente hier -->
+        <div id="tableSwitcher">
+            <a href="player.html"><button> Spieler anzeigen</button></a>
+            <a href="teams.html"><button> Teams anzeigen</button></a>
+            <a href="tournaments.html"><button> Turnire anzeigen</button></a>
+            <a href="matches.html"><button> Matches anzeigen</button></a>
+            <a href="roundes.html"><button> Runden anzeigen</button></a>
+
+        </div>
+    
+    </header>
+    <h1>Volleyball Spielerdaten</h1>
+    <div id="filters">
+        <input type="text" id="filterCode" placeholder="Code">
+        <input type="text" id="filterName" placeholder="Name">
+        <input type="text" id="filterStartDate" placeholder="StartDate">
+        <input type="text" id="filterEndDate" placeholder="EndDate">
+        <input type="text" id="filterNo" placeholder="No">
+
+
+    </div>
+    <button onclick="loadtournamentData(1)">Filtern</button>
+    <button id="prevPage">Zurück</button>
+    <button id="nextPage">Vor</button>
+    <div id="dataContainer"></div>
+
+    <script>
+        let currentPage = 1;
+
+        function getTournamentQueryString() {
+            const filters = {
+                Code: document.getElementById('filterCode').value,
+                Name : document.getElementById('filterName').value,
+
+                StartDate: document.getElementById('filterStartDate').value,
+                EndDate: document.getElementById('filterEndDate').value,
+                No : document.getElementById('filterNo').value,
+
+
+            };
+            return new URLSearchParams(filters).toString();
+        }
+
+        function loadtournamentData(page) {
+            const queryString = getTournamentQueryString();
+            fetch(`/api/volleyballtournaments?page=${page}&${queryString}`)
+                .then(response => response.json())
+                .then(data => {
+                    const container = document.getElementById('dataContainer');
+                    let html = '<table><tr><th>Code</th><th>Name</th><th>StartDate</th><th>EndDate</th><th>No</th></tr>';
+                    data.data.forEach(Tournament => {
+                        html += `<tr><td>${Tournament.Code}</td><td>${Tournament.Name}</td><td>${Tournament.StartDate}</td><td>${Tournament.EndDate}</td><td>${Tournament.No}</td></tr>`;
+                    });
+                    html += '</table>';
+                    container.innerHTML = html;
+                    currentPage = data.currentPage;
+
+                    console.log(data.message);
+                })
+                .catch(error => console.error('Fehler:', error));
+        }
+
+        document.getElementById('prevPage').addEventListener('click', () => {
+            if (currentPage > 1) {
+                loadtournamentData(currentPage - 1);
+            }
+        });
+
+        document.getElementById('nextPage').addEventListener('click', () => {
+            loadtournamentData(currentPage + 1);
+        });
+
+        loadtournamentData(currentPage);
+
+        document.getElementById('filterButton').addEventListener('click', () => {
+        loadtournamentData(1); // Lädt die erste Seite mit den aktuellen Filtern
+        });
+
+    </script>
+</body>
+</html>
+
+
+

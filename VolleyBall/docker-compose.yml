@@ -1,0 +1,20 @@
+version: '3.8'
+services:
+  db-microservice:
+    build: ./db-microservice
+    volumes:
+      - ./data:/usr/src/app/data
+    restart: on-failure
+
+  node-backend:
+    build: ./node-backend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./data:/usr/src/app/data
+    depends_on:
+      - db-microservice
+    restart: always
+volumes:
+  db-data:
+

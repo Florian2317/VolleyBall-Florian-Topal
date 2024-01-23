@@ -1,0 +1,15 @@
+{
+  "name": "volleyball",
+  "version": "1.0.0",
+  "description": "Volleyball Projekt Florian Topal 6ABIT",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Florian Topal",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2",
+    "sqlite3": "^5.1.7"
+  }
+}
