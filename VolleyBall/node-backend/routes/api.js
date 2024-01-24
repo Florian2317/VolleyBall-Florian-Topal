@@ -7,19 +7,20 @@ const router = express.Router();
 const dbPath = path.join(__dirname, '../data/VolleyBallDB.db');
 const db = new sqlite3.Database(dbPath, sqlite3.OPEN_READONLY);
 
-// Funktion zur Ausführung einer SQL-Abfrage und Senden der Ergebnisse
-function queryTable(res, sql) {
-    db.all(sql, [], (err, rows) => {
-        if (err) {
-            res.status(500).json({ error: err.message });
-            return;
-        }
-        res.json({
-            message: "Erfolg",
-            data: rows
-        });
-    });
-}
+
+//// Funktion zur Ausführung einer SQL-Abfrage und Senden der Ergebnisse
+//function queryTable(res, sql) {
+//    db.all(sql, [], (err, rows) => {
+//        if (err) {
+//            res.status(500).json({ error: err.message });
+//            return;
+//        }
+//        res.json({
+//            message: "Erfolg",
+//            data: rows
+//        });
+//    });
+//}
 
 router.get('/players', (req, res) => {
     let page = parseInt(req.query.page) || 1;
@@ -408,4 +409,97 @@ router.get('/beachrounds', (req, res) => {
     });
 });
     
+// Route, um alle Events abzurufen
+router.get('/events', (req, res) => {
+    let page = parseInt(req.query.page) || 1;
+    let limit = 1000;
+    let offset = (page - 1) * limit;
+    let params = [];
+
+    let filters = [];
+
+    if (req.query.Code) {
+        filters.push("Code LIKE ?");
+        params.push(`%${req.query.Code}%`);
+    }
+    if (req.query.Name) {
+        filters.push("Name LIKE ?");
+        params.push(`%${req.query.Name}%`);
+    }
+    if (req.query.StartDate) {
+        filters.push("StartDate LIKE ?");
+        params.push(`%${req.query.StartDate}%`);
+    }
+    if (req.query.EndDate) {
+        filters.push("EndDate LIKE ?");
+        params.push(`%${req.query.EndDate}%`);
+    }
+   
+    let whereClause = filters.length > 0 ? `WHERE ${filters.join(' AND ')}` : '';
+    const sql = `SELECT * FROM events ${whereClause} LIMIT ? OFFSET ? `;
+    params.push(limit, offset);
+    console.log("Ausgeführte SQL-Abfrage: ", sql); // Log der SQL-Abfrage
+    console.log("Verwendete Parameter: ", params); // Log der verwendeten Parameter
+    db.all(sql, params, (err, rows) => {
+        if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+        }
+        let debugQuery = sql;
+        params.forEach(param => {
+            debugQuery = debugQuery.replace('?', `'${param}'`);
+        });
+        res.json({
+            message: {
+                array : [whereClause, sql, filters,"Test"],
+                query: sql,
+                debug: debugQuery,
+                param: params
+            },
+            data: rows,
+            currentPage: page
+        });
+    });
+});
+
+// Route, um alle Events abzurufen
+router.get('/test', (req, res) => {
+    let page = parseInt(req.query.page) || 1;
+    let limit = 1000;
+    let offset = (page - 1) * limit;
+    let params = [];
+
+    let filters = [];
+
+
+
+    const sql = "SELECT BM.*, BT1.Name as TeamAName, BT2.Name as TeamBName, P1.FirstName as Player1FirstName, P1.LastName as Player1LastName, P2.FirstName as Player2FirstName, P2.LastName as Player2LastName, VT.Name as TournamentName FROM      BeachMatches BM JOIN      BeachTeams BT1 ON BM.TeamAName = BT1.Name JOIN      BeachTeams BT2 ON BM.TeamBName = BT2.Name JOIN      Players P1 ON BT1.NoPlayer1 = P1.No JOIN      Players P2 ON BT1.NoPlayer2 = P2.No JOIN      VolleyballTournaments VT ON BM.NoInTournament = VT.No; "
+
+
+            
+    
+    
+    db.all(sql, params, (err, rows) => {
+        if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+        }
+        let debugQuery = sql;
+        params.forEach(param => {
+            debugQuery = debugQuery.replace('?', `'${param}'`);
+        });
+        res.json({
+            message: {
+                array : [whereClause, sql, filters,"Test"],
+                query: sql,
+                debug: debugQuery,
+                param: params
+            },
+            data: rows,
+            currentPage: page
+        });
+    });
+});
+
+
     module.exports = router;
