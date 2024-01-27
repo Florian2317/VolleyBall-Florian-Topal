@@ -112,7 +112,7 @@ def fetch_and_insert_data(xml_payload, table_name, fields, cursor):
     if response.status_code == 200:
         root = ElementTree.fromstring(response.text)
         records = []
-        if table_name != 'BeachMatches':
+        if table_name != 'BeachMatches' or 'BeachRounds':
             for record in root.findall(table_name[:-1]):
                 record_data = tuple(record.attrib.get(field, None) for field in fields)
                 records.append(record_data)
